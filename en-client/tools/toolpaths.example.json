@@ -1,0 +1,13 @@
+{
+  "_说明": "工具路径模板。签名密钥随客户端入库：keys/debug.keystore（alias androiddebugkey / pass android）。复制本文件为 toolpaths.json 并按需填写其它路径；留空 = 自动探测。",
+  "java": "java",
+  "java_home": "",
+  "android_home": "",
+  "gradle_user_home": "",
+  "apktool_jar": "",
+  "zipalign": "",
+  "apksigner_jar": "",
+  "keystore": "keys/debug.keystore",
+  "ks_pass": "android",
+  "ks_alias": "androiddebugkey"
+}

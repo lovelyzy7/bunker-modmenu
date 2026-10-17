@@ -1,0 +1,9 @@
+{
+  "_说明": "一键脚本的输入 APK（相对客户端根目录）。只支持「先打私服补丁 → 再注入菜单」：patched = 已用 lunar-scripts 打好私服补丁的 APK。不给路径时脚本会自动扫描 resources/、客户端目录、../../resources 并挑选补丁版。",
+  "patched": "resources/patched-jp.apk",
+  "search_dirs": [
+    "resources",
+    ".",
+    "../../resources"
+  ]
+}

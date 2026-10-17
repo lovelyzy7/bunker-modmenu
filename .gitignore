@@ -1,0 +1,16 @@
+# 构建产物与大文件：不进 Git，分发用 Release 附件
+*/build/
+*/dist/
+*/logs/
+*/resources/
+*/.gradle/
+*/modmenu/.gradle/
+*/modmenu/app/build/
+*/modmenu/app/src/main/jni/KittyMemory/*/build/
+__pycache__/
+*.pyc
+*.apk
+*.idsig
+*.keystore
+*.jks
+toolpaths.json
