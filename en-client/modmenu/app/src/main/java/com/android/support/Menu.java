@@ -105,6 +105,15 @@ public class Menu {
     int ToggleOFF = Color.parseColor("#6B0A0A");  // danger
     int BtnON     = Color.parseColor("#3A4D24");
     int BtnOFF    = Color.parseColor("#6B0A0A");
+    //********** Bunker 主题令牌（对齐 lunar-base/static/css/automata.css）**********//
+    int PAPER          = Color.parseColor("#D3CEB8"); // 纸面
+    int PANEL          = Color.parseColor("#D8D3BD"); // 面板
+    int INK            = Color.parseColor("#3A372F"); // 墨色
+    int CHIP_BG        = Color.parseColor("#BCB69E"); // 分类条 / 状态 chip 底
+    int STATUS_OK      = Color.parseColor("#6E7356"); // 正常
+    int STATUS_ALERT   = Color.parseColor("#7A1C14"); // 异常
+    float TRACKING     = 0.16f;                       // 标题字距（0.16em）
+    int CARD_RADIUS    = 8;                           // 圆角 dp
     int CategoryBG = Color.parseColor("#1A1814"); // accent（深色条）
     int SeekBarColor = Color.parseColor("#1A1814");
     int SeekBarProgressColor = Color.parseColor("#1A1814");
@@ -163,7 +172,7 @@ public class Menu {
         // mExpanded.setPadding(1, 1, 1, 1); //So borders would be visible
         mExpanded.setLayoutParams(new LinearLayout.LayoutParams(dp(MENU_WIDTH), WRAP_CONTENT));
         GradientDrawable gdMenuBody = new GradientDrawable();
-        gdMenuBody.setCornerRadius(MENU_CORNER); //Set corner
+        gdMenuBody.setCornerRadius(dp(CARD_RADIUS)); //Set corner
         gdMenuBody.setColor(MENU_BG_COLOR); //Set background color
         gdMenuBody.setStroke(dp(2), BORDER_COLOR); //Set border (2px，对齐 automata.css)
         mExpanded.setBackground(gdMenuBody); //Apply GradientDrawable to it
@@ -241,28 +250,48 @@ public class Menu {
 
         //********** Title **********
         RelativeLayout titleText = new RelativeLayout(context);
-        titleText.setPadding(10, 5, 10, 5);
+        titleText.setPadding(dp(10), dp(6), dp(10), dp(6));
         titleText.setVerticalGravity(16);
 
+        // 顶部铭牌：BUNKER // POD 042（等宽、大写、0.16em 字距）
+        TextView eyebrow = new TextView(context);
+        eyebrow.setText("BUNKER // POD 042");
+        eyebrow.setTextColor(INK);
+        eyebrow.setAlpha(0.72f);
+        eyebrow.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
+        eyebrow.setAllCaps(true);
+        track(eyebrow);
+        setScaledTextSize(eyebrow, 9.0f);
+        eyebrow.setGravity(Gravity.CENTER);
+        eyebrow.setId(View.generateViewId());
+        RelativeLayout.LayoutParams rlEyebrow = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+        rlEyebrow.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        rlEyebrow.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        eyebrow.setLayoutParams(rlEyebrow);
+
         TextView title = new TextView(context);
-        title.setTextColor(TEXT_COLOR);
+        title.setTextColor(INK);
         title.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
-        setScaledTextSize(title, 18.0f);
+        title.setAllCaps(true);
+        track(title);
+        setScaledTextSize(title, 17.0f);
         title.setGravity(Gravity.CENTER);
         RelativeLayout.LayoutParams rl = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
         rl.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        rl.addRule(RelativeLayout.BELOW, eyebrow.getId());
         title.setLayoutParams(rl);
 
         //********** Sub title **********
         TextView subTitle = new TextView(context);
-        subTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        subTitle.setMarqueeRepeatLimit(-1);
+        subTitle.setEllipsize(TextUtils.TruncateAt.END);
         subTitle.setSingleLine(true);
-        subTitle.setSelected(true);
-        subTitle.setTextColor(TEXT_COLOR);
+        subTitle.setTextColor(INK);
+        subTitle.setAlpha(0.72f);
+        subTitle.setTypeface(Typeface.MONOSPACE);
+        track(subTitle);
         setScaledTextSize(subTitle, 10.0f);
         subTitle.setGravity(Gravity.CENTER);
-        subTitle.setPadding(0, 0, 0, 5);
+        subTitle.setPadding(0, dp(2), 0, dp(6));
 
         //********** Mod menu feature list **********
         scrollView = new ScrollView(context);
@@ -331,6 +360,7 @@ public class Menu {
         } else {
             mCollapsed.addView(startimage);
         }
+        titleText.addView(eyebrow);
         titleText.addView(title);
         titleText.addView(settings);
         mExpanded.addView(titleText);
@@ -1186,25 +1216,86 @@ editText.setFocusable(false);
     }
 
     private void Category(LinearLayout linLayout, String text) {
+        // 分类条：chip 底 + 2dp 墨色描边 + 8dp 圆角，等宽大写 0.16em 字距
         TextView textView = new TextView(getContext);
-        setScaledTextSize(textView, 13f);
-        textView.setBackgroundColor(CategoryBG);
-        textView.setText(Html.fromHtml("<font color='#D8D1BB'>" + text + "</font>"));
+        setScaledTextSize(textView, 12f);
+        textView.setText(Html.fromHtml(text));
         textView.setGravity(Gravity.CENTER);
-        textView.setTextColor(Color.parseColor("#D8D1BB"));
+        textView.setTextColor(INK);
         textView.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
-        textView.setPadding(0, 6, 0, 6);
-        linLayout.addView(textView);
+        textView.setAllCaps(true);
+        track(textView);
+        textView.setBackground(panel(CHIP_BG, 2));
+        textView.setPadding(dp(8), dp(6), dp(8), dp(6));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(dp(8), dp(8), dp(8), dp(4));
+        linLayout.addView(textView, lp);
     }
 
     private void TextView(LinearLayout linLayout, String text) {
+        // 自检行（17/18）走状态样式：左标签 + 右侧语义色 chip
+        if (text.startsWith("自检")) {
+            statusRow(linLayout, text);
+            return;
+        }
         TextView textView = new TextView(getContext);
         setScaledTextSize(textView, 13f);
         textView.setText(Html.fromHtml(text));
         textView.setTextColor(TEXT_COLOR_2);
         textView.setTypeface(Typeface.MONOSPACE);
-        textView.setPadding(10, 5, 10, 5);
+        textView.setPadding(dp(12), dp(5), dp(12), dp(5));
         linLayout.addView(textView);
+    }
+
+    /** 自检行：标签等宽大写，右侧 chip 用语义色（正常 = 橄榄绿，异常 = 暗红）。 */
+    private void statusRow(LinearLayout linLayout, String text) {
+        int colon = text.indexOf(':');
+        String label = colon > 0 ? text.substring(0, colon) : text;
+        String value = colon > 0 ? text.substring(colon + 1).trim() : "";
+        boolean ok = !(value.contains("等待") || value.contains("OFF") || value.startsWith("0/") || value.isEmpty());
+
+        LinearLayout row = new LinearLayout(getContext);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), dp(5), dp(12), dp(5));
+
+        TextView name = new TextView(getContext);
+        name.setText(label);
+        name.setTextColor(INK);
+        name.setTypeface(Typeface.MONOSPACE);
+        name.setAllCaps(true);
+        track(name);
+        setScaledTextSize(name, 11f);
+        row.addView(name, new LinearLayout.LayoutParams(0,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView chip = new TextView(getContext);
+        chip.setText(value);
+        chip.setTextColor(PAPER);
+        chip.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
+        track(chip);
+        setScaledTextSize(chip, 11f);
+        chip.setPadding(dp(7), dp(3), dp(7), dp(3));
+        chip.setBackground(panel(ok ? STATUS_OK : STATUS_ALERT, 1));
+        row.addView(chip);
+
+        linLayout.addView(row);
+    }
+
+    /** 0.16em 字距（API 21+ 才有 setLetterSpacing）。 */
+    private void track(TextView view) {
+        if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
+            view.setLetterSpacing(TRACKING);
+    }
+
+    /** 圆角 + 2dp 描边的面板底，Bunker 的卡片外观。 */
+    private GradientDrawable panel(int fill, int strokeDp) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(fill);
+        drawable.setCornerRadius(dp(CARD_RADIUS));
+        drawable.setStroke(dp(strokeDp), BORDER_COLOR);
+        return drawable;
     }
 
     private void WebTextView(LinearLayout linLayout, String text) {
