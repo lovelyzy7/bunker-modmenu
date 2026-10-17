@@ -55,6 +55,7 @@ jobjectArray SettingsList(JNIEnv *env, jobject activityObject) {
             OBFUSCATE("Category_Settings"),
             OBFUSCATE("-1_True_Toggle_Save feature preferences"), //-1 is checked on Preferences.java, 默认开启
             OBFUSCATE("-3_Toggle_Auto size vertically"),
+            OBFUSCATE("-7_SeekBar_字体大小_60_140"),
             OBFUSCATE("Category_Menu"),
             OBFUSCATE("-6_Button_<font color='red'>Close settings</font>"),
     };

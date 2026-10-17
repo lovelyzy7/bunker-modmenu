@@ -112,6 +112,8 @@ static bool isPlayerTargetBehaviour(void* data) {
 // ============================================================
 //  菜单功能列表 / 回调
 // ============================================================
+static void refreshDiag();   // 定义在 g_hooks 之后
+
 jobjectArray GetFeatureList(JNIEnv *env, jobject context) {
     jobjectArray ret;
 
@@ -165,6 +167,9 @@ void Changes(JNIEnv *env, jclass clazz, jobject obj, jint featNum, jstring featN
             g_capLift = boolean;
             if (f_JoinParty) applyBhCapPatch(boolean);   // 运行时补丁 / 还原
             LOGI(OBFUSCATE("Changes[6] capLift=%d"), (int) g_capLift);
+            break;
+        case 19:
+            refreshDiag();   // Java 侧随后重建列表显示新值
             break;
         default:
             LOGI(OBFUSCATE("Changes[?] featNum=%d value=%d bool=%d"), (int) featNum, (int) value, (int) boolean);
@@ -313,6 +318,23 @@ static HookSlot g_hooks[] = {
      {0xfc,0x6f,0xba,0xa9,0xfa,0x67,0x01,0xa9,0xf8,0x5f,0x02,0xa9,0xf6,0x57,0x03,0xa9}, 0, 0},
 };
 static const int g_hookCount = (int) (sizeof(g_hooks) / sizeof(g_hooks[0]));
+
+// 自检用：已经成功挂钩的方法数（old_ 指针非空即成功）。
+static int countHooksInstalled() {
+    int ok = 0;
+    for (int i = 0; i < g_hookCount; i++) {
+        if (g_hooks[i].orig && *g_hooks[i].orig) ok++;
+    }
+    return ok;
+}
+
+// 刷新自检：重算基址来源、已挂钩数与上限补丁状态（菜单 17/18 行显示）。
+static void refreshDiag() {
+    snprintf(g_diagBase, sizeof(g_diagBase), "%s", libBaseSource());
+    snprintf(g_diagHook, sizeof(g_diagHook), "%d/%d 上限%s", countHooksInstalled(), g_hookCount,
+             g_capLift ? "ON" : "OFF");
+    LOGI(OBFUSCATE("diag refreshed: %s %s"), g_diagBase, g_diagHook);
+}
 
 static inline void *hookAddr(const char *rva) {
     return (void *) getAbsoluteAddress(targetLibName, str2Offset(rva));

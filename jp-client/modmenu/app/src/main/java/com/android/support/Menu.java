@@ -78,6 +78,21 @@ public class Menu {
     int BTN_COLOR    = Color.parseColor("#D8D1BB");  // 按钮底（panel）
     int MENU_BG_COLOR = Color.parseColor("#F2CFC7B0"); // 主面板（奶油色，略透明 #AARRGGBB）
     int MENU_FEATURE_BG_COLOR = Color.parseColor("#E8D8D1BB"); // 功能列表底
+    /** 界面字号缩放（60%–140%），存在偏好里，重建菜单后生效。 */
+    private float uiScale = 1f;
+    private void loadUiScale() {
+        try {
+            float v = Preferences.with(getContext).readFloat("uiScale", 1f);
+            uiScale = Math.max(0.6f, Math.min(1.4f, v));
+        } catch (Exception e) {
+            uiScale = 1f;
+        }
+    }
+    /** 按用户缩放后的字号。 */
+    private void setScaledTextSize(TextView view, float base) {
+        view.setTextSize(base * uiScale);
+    }
+
     int MENU_WIDTH = 290;
     int MENU_HEIGHT = 210;
     int POS_X = 0;
@@ -129,8 +144,9 @@ public class Menu {
     //Here we write the code for our Menu
     // Reference: https://www.androidhive.info/2016/11/android-floating-widget-like-facebook-chat-head/
     public Menu(Context context) {
-
         getContext = context;
+        loadUiScale();
+
         Preferences.context = context;
         rootFrame = new FrameLayout(context); // Global markup
         rootFrame.setOnTouchListener(onTouchListener());
@@ -194,7 +210,7 @@ public class Menu {
         settings.setText(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M ? "⚙" : "\uD83D\uDD27");
         settings.setTextColor(TEXT_COLOR);
         settings.setTypeface(Typeface.DEFAULT_BOLD);
-        settings.setTextSize(20.0f);
+        setScaledTextSize(settings, 20.0f);
         RelativeLayout.LayoutParams rlsettings = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
         rlsettings.addRule(ALIGN_PARENT_RIGHT);
         settings.setLayoutParams(rlsettings);
@@ -231,7 +247,7 @@ public class Menu {
         TextView title = new TextView(context);
         title.setTextColor(TEXT_COLOR);
         title.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
-        title.setTextSize(18.0f);
+        setScaledTextSize(title, 18.0f);
         title.setGravity(Gravity.CENTER);
         RelativeLayout.LayoutParams rl = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
         rl.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -244,7 +260,7 @@ public class Menu {
         subTitle.setSingleLine(true);
         subTitle.setSelected(true);
         subTitle.setTextColor(TEXT_COLOR);
-        subTitle.setTextSize(10.0f);
+        setScaledTextSize(subTitle, 10.0f);
         subTitle.setGravity(Gravity.CENTER);
         subTitle.setPadding(0, 0, 0, 5);
 
@@ -606,6 +622,7 @@ public class Menu {
         textView.setText(Html.fromHtml(featName + ": <font color='" + NumberTxtColor + "'>" + ((loadedProg == 0) ? max : loadedProg)));
         textView.setTextColor(TEXT_COLOR_2);
         textView.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(textView, 13f);
 
         SeekBar seekBar = new SeekBar(getContext);
         seekBar.setPadding(25, 10, 35, 10);
@@ -625,14 +642,34 @@ public class Menu {
             public void onProgressChanged(SeekBar seekBar, int i, boolean z) {
                 //if progress is greater than minimum, don't go below. Else, set progress
                 seekBar.setProgress(i < min ? min : i);
-                Preferences.changeFeatureInt(featName, featNum, i < min ? min : i);
-                textView.setText(Html.fromHtml(featName + ": <font color='" + NumberTxtColor + "'>" + (i < min ? min : i)));
+                int value = i < min ? min : i;
+                Preferences.changeFeatureInt(featName, featNum, value);
+                textView.setText(Html.fromHtml(featName + ": <font color='" + NumberTxtColor + "'>" + value));
+                if (featNum == -7) applyUiScale(value);
             }
         });
         linearLayout.addView(textView);
         linearLayout.addView(seekBar);
 
         linLayout.addView(linearLayout);
+    }
+
+    /** 字号滑条（feat -7）：保存到偏好并重建菜单，改动立刻可见。 */
+    private void applyUiScale(int percent) {
+        float value = Math.max(0.6f, Math.min(1.4f, percent / 100f));
+        try {
+            Preferences.with(getContext).writeFloat("uiScale", value);
+        } catch (Exception ignored) {
+        }
+        uiScale = value;
+        try {
+            Init(getContext, mTitle, mSubTitle);
+            mods.removeAllViews();
+            featureList(GetFeatureList(), mods);
+            mSettings.removeAllViews();
+            featureList(SettingsList(), mSettings);
+        } catch (Exception ignored) {
+        }
     }
 
     private void Button(LinearLayout linLayout, final int featNum, final String featName) {
@@ -659,6 +696,15 @@ public class Menu {
                         break;
                 }
                 Preferences.changeFeatureInt(featName, featNum, 0);
+                // 刷新自检（19）改了原生侧的自检数值，必须重建列表才会显示
+                if (featNum == 19) {
+                    try {
+                        Init(getContext, mTitle, mSubTitle);
+                        mods.removeAllViews();
+                        featureList(GetFeatureList(), mods);
+                    } catch (Exception ignored) {
+                    }
+                }
             }
         });
 
@@ -1141,6 +1187,7 @@ editText.setFocusable(false);
 
     private void Category(LinearLayout linLayout, String text) {
         TextView textView = new TextView(getContext);
+        setScaledTextSize(textView, 13f);
         textView.setBackgroundColor(CategoryBG);
         textView.setText(Html.fromHtml("<font color='#D8D1BB'>" + text + "</font>"));
         textView.setGravity(Gravity.CENTER);
@@ -1152,6 +1199,7 @@ editText.setFocusable(false);
 
     private void TextView(LinearLayout linLayout, String text) {
         TextView textView = new TextView(getContext);
+        setScaledTextSize(textView, 13f);
         textView.setText(Html.fromHtml(text));
         textView.setTextColor(TEXT_COLOR_2);
         textView.setTypeface(Typeface.MONOSPACE);
