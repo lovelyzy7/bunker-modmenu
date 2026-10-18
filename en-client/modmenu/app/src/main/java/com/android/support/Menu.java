@@ -617,6 +617,7 @@ public class Menu {
             }
         }
         switchR.setText(featName);
+        setScaledTextSize(switchR, 13f);
         switchR.setTextColor(TEXT_COLOR_2);
         switchR.setTypeface(Typeface.MONOSPACE);
         switchR.setPadding(10, 5, 0, 5);
@@ -710,6 +711,7 @@ public class Menu {
         button.setTextColor(TEXT_COLOR_2);
         button.setAllCaps(false);
         button.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(button, 13f);
         button.setBackground(rect(BTN_COLOR, BORDER_COLOR)); //Disable caps to support html
         button.setText(Html.fromHtml(featName));
         button.setBackgroundColor(BTN_COLOR);
@@ -732,6 +734,10 @@ public class Menu {
                         Init(getContext, mTitle, mSubTitle);
                         mods.removeAllViews();
                         featureList(GetFeatureList(), mods);
+                        // 重建后回到功能列表（自检按钮只在功能页，重建不应停在设置页）
+                        scrollView.removeAllViews();
+                        scrollView.addView(mods);
+                        scrollView.scrollTo(0, scrollView.getScrollY());
                     } catch (Exception ignored) {
                     }
                 }
@@ -748,6 +754,7 @@ public class Menu {
         button.setLayoutParams(layoutParams);
         button.setAllCaps(false);
         button.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(button, 13f);
         button.setBackground(rect(BTN_COLOR, BORDER_COLOR)); //Disable caps to support html
         button.setTextColor(TEXT_COLOR_2);
         button.setText(Html.fromHtml(featName));
@@ -771,6 +778,7 @@ public class Menu {
         button.setTextColor(TEXT_COLOR_2);
         button.setAllCaps(false);
         button.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(button, 13f);
         button.setBackground(rect(BTN_COLOR, BORDER_COLOR)); //Disable caps to support html
 
         final String finalfeatName = featName.replace("OnOff_", "");
@@ -838,8 +846,11 @@ public class Menu {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 Preferences.changeFeatureInt(spinner.getSelectedItem().toString(), featNum, position);
-                if (parentView.getChildAt(0) instanceof TextView)
-                    ((TextView) parentView.getChildAt(0)).setTextColor(TEXT_COLOR_2);
+                if (parentView.getChildAt(0) instanceof TextView) {
+                    TextView label = (TextView) parentView.getChildAt(0);
+                    label.setTextColor(TEXT_COLOR_2);
+                    setScaledTextSize(label, 13f);
+                }
             }
 
             @Override
@@ -860,6 +871,7 @@ public class Menu {
         button.setText(Html.fromHtml(featName + ": <font color='" + NumberTxtColor + "'>" + num + "</font>"));
         button.setAllCaps(false);
         button.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(button, 13f);
         button.setBackground(rect(BTN_COLOR, BORDER_COLOR));
         button.setLayoutParams(layoutParams);
         button.setBackgroundColor(BTN_COLOR);
@@ -949,6 +961,7 @@ editText.setFocusable(false);
         button.setText(Html.fromHtml(featName + ": <font color='" + NumberTxtColor + "'>" + num + "</font>"));
         button.setAllCaps(false);
         button.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(button, 13f);
         button.setBackground(rect(BTN_COLOR, BORDER_COLOR));
         button.setLayoutParams(layoutParams);
         button.setBackgroundColor(BTN_COLOR);
@@ -1041,6 +1054,7 @@ editText.setFocusable(false);
 
         button.setAllCaps(false);
         button.setTypeface(Typeface.MONOSPACE);
+        setScaledTextSize(button, 13f);
         button.setBackground(rect(BTN_COLOR, BORDER_COLOR));
         button.setLayoutParams(layoutParams);
         button.setBackgroundColor(BTN_COLOR);
