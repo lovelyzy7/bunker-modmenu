@@ -1345,12 +1345,47 @@ editText.setFocusable(false);
     public void setVisibility(int view) {
         if (rootFrame != null) {
             rootFrame.setVisibility(view);
+            // 强制 WindowManager 重绘：息屏/切后台回来后仅改可见性时，
+            // 部分机型的覆盖层表面不会自己恢复。
+            if (mWindowManager != null && vmParams != null && rootFrame.getWindowToken() != null) {
+                try {
+                    mWindowManager.updateViewLayout(rootFrame, vmParams);
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
+    /**
+     * 把浮窗挂回 WindowManager（息屏/切软件后按钮消失的自愈路径）。
+     * 视图还在时只刷新布局触发重绘；已被摘掉（getWindowToken()==null）时重新 addView。
+     */
+    public void ensureAttached() {
+        if (rootFrame == null || mWindowManager == null || vmParams == null) return;
+        try {
+            if (rootFrame.getWindowToken() == null) {
+                mWindowManager.addView(rootFrame, vmParams);
+            } else {
+                mWindowManager.updateViewLayout(rootFrame, vmParams);
+            }
+        } catch (Exception ignored) {
+            // addView 对已附着视图、updateViewLayout 对已摘除视图都会抛异常；下次轮询再试。
+        }
+    }
+
+    /** 显示浮窗：先确保挂上，再可见。 */
+    public void show() {
+        ensureAttached();
+        setVisibility(View.VISIBLE);
+    }
+
     public void onDestroy() {
-        if (rootFrame != null) {
-            mWindowManager.removeView(rootFrame);
+        if (rootFrame != null && mWindowManager != null) {
+            try {
+                mWindowManager.removeView(rootFrame);
+            } catch (Exception ignored) {
+                // 已被系统摘除时 removeView 会抛 IllegalArgumentException。
+            }
         }
     }
 }
